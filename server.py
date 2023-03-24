@@ -8,7 +8,6 @@ import tictactoe_pb2
 import tictactoe_pb2_grpc
 
 
-
 class ReadyClient:
     def __init__(self, channel):
         self.stub = tictactoe_pb2_grpc.ReadyServiceStub(channel)
@@ -18,11 +17,13 @@ class ReadyClient:
         response = self.stub.ServerReady(request)
         return response.ready
 
+
 class ReadyServicer(tictactoe_pb2_grpc.ReadyServiceServicer):
     def ServerReady(self, request, context):
         response = tictactoe_pb2.ReadyResponse()
         response.ready = 1
         return response
+
 
 class DateTimeClient:
     def __init__(self, channel):
@@ -57,17 +58,23 @@ def update_clock(client):  # Christian's algorithm for now
     return estimated_server_time
 
 
+def sync_time():
+    pass
+
+
+time_synced = False
 def servers_ready():
+    global time_synced, ports
     while True:
         try:
-            with grpc.insecure_channel('localhost:20049') as channel1:
-                client1 = ReadyClient(channel1)
-                response1 = client1.server_ready()
-            with grpc.insecure_channel('localhost:20050') as channel2:
-                client2 = ReadyClient(channel2)
-                response2 = client2.server_ready()
+            for port in ports:
+                with grpc.insecure_channel(f'localhost:{port}') as channel1:
+                    client = ReadyClient(channel1)
+                    response = client.server_ready()
+            if not time_synced:
+                time_synced = True
             break
-        except:
+        except grpc.RpcError as e:
             print("Trying to contact peers again!")
     return
 
@@ -76,14 +83,17 @@ def game_loop():
     print("Contacting peers!")
     servers_ready()
     print("All clients online!")
+    lmao = input("Continue")
 
 
+ports = ["20048", "20049", "20050"]
 if __name__ == "__main__":
     server = grpc.server(ThreadPoolExecutor(max_workers=5))
     while True:
         try:
             port = input("Insert server port: ")
             server.add_insecure_port("[::]:" + port)
+            ports.remove(port)
             break
         except:
             print("This port is taken, try again:")
