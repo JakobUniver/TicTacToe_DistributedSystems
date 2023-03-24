@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message DateTimeRequest {
+  // No fields needed
+}
+
+message DateTimeResponse {
+  string date_time = 1;
+}
+
+service DateTimeService {
+  rpc GetDateTime(DateTimeRequest) returns (DateTimeResponse);
+}
