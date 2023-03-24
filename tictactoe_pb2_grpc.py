@@ -64,3 +64,64 @@ class DateTimeService(object):
             tictactoe__pb2.DateTimeResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class ReadyServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.ServerReady = channel.unary_unary(
+                '/ReadyService/ServerReady',
+                request_serializer=tictactoe__pb2.ReadyRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.ReadyResponse.FromString,
+                )
+
+
+class ReadyServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def ServerReady(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ReadyServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'ServerReady': grpc.unary_unary_rpc_method_handler(
+                    servicer.ServerReady,
+                    request_deserializer=tictactoe__pb2.ReadyRequest.FromString,
+                    response_serializer=tictactoe__pb2.ReadyResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'ReadyService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class ReadyService(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def ServerReady(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ReadyService/ServerReady',
+            tictactoe__pb2.ReadyRequest.SerializeToString,
+            tictactoe__pb2.ReadyResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

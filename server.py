@@ -8,6 +8,22 @@ import tictactoe_pb2
 import tictactoe_pb2_grpc
 
 
+
+class ReadyClient:
+    def __init__(self, channel):
+        self.stub = tictactoe_pb2_grpc.ReadyServiceStub(channel)
+
+    def server_ready(self):
+        request = tictactoe_pb2.ReadyRequest()
+        response = self.stub.ServerReady(request)
+        return response.ready
+
+class ReadyServicer(tictactoe_pb2_grpc.ReadyServiceServicer):
+    def ServerReady(self, request, context):
+        response = tictactoe_pb2.ReadyResponse()
+        response.ready = 1
+        return response
+
 class DateTimeClient:
     def __init__(self, channel):
         self.stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
@@ -38,16 +54,33 @@ def update_clock(client): # Christian's algorithm for now
     print("Time diff with server: ", abs(time_diff))
     return estimated_server_time
 
+def servers_ready():
+    while True:
+        try:
+            with grpc.insecure_channel('localhost:20049') as channel1:
+                client1 = ReadyClient(channel1)
+                response1 = client1.server_ready()
+            with grpc.insecure_channel('localhost:20050') as channel2:
+                client2 = ReadyClient(channel2)
+                response2 = client2.server_ready()
+            break
+        except:
+            print("Trying to contact peers again!")
+    return
+
 def run_server():
     server = grpc.server(ThreadPoolExecutor(max_workers=5))
     port = input("Insert server port: ")
     server.add_insecure_port("[::]:" + port)
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeServicer(), server)
+    tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
     with grpc.insecure_channel('localhost:20048') as channel:
         client = DateTimeClient(channel)
         update_clock(client)
+    servers_ready()
+    print("All clients online!")
     server.wait_for_termination()
 
 if __name__ == "__main__":

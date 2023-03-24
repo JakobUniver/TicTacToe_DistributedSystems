@@ -8,6 +8,18 @@ message DateTimeResponse {
   string date_time = 1;
 }
 
+message ReadyRequest {
+  // No field needed
+}
+
+message ReadyResponse {
+  int32 ready = 1;
+}
+
 service DateTimeService {
   rpc GetDateTime(DateTimeRequest) returns (DateTimeResponse);
+}
+
+service ReadyService {
+  rpc ServerReady(ReadyRequest) returns (ReadyResponse);
 }

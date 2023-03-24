@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x11\n\x0f\x44\x61teTimeRequest\"%\n\x10\x44\x61teTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\t2E\n\x0f\x44\x61teTimeService\x12\x32\n\x0bGetDateTime\x12\x10.DateTimeRequest\x1a\x11.DateTimeResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x11\n\x0f\x44\x61teTimeRequest\"%\n\x10\x44\x61teTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\t\"\x0e\n\x0cReadyRequest\"\x1e\n\rReadyResponse\x12\r\n\x05ready\x18\x01 \x01(\x05\x32\x45\n\x0f\x44\x61teTimeService\x12\x32\n\x0bGetDateTime\x12\x10.DateTimeRequest\x1a\x11.DateTimeResponse2<\n\x0cReadyService\x12,\n\x0bServerReady\x12\r.ReadyRequest\x1a\x0e.ReadyResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'tictactoe_pb2', globals())
@@ -24,6 +24,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _DATETIMEREQUEST._serialized_end=36
   _DATETIMERESPONSE._serialized_start=38
   _DATETIMERESPONSE._serialized_end=75
-  _DATETIMESERVICE._serialized_start=77
-  _DATETIMESERVICE._serialized_end=146
+  _READYREQUEST._serialized_start=77
+  _READYREQUEST._serialized_end=91
+  _READYRESPONSE._serialized_start=93
+  _READYRESPONSE._serialized_end=123
+  _DATETIMESERVICE._serialized_start=125
+  _DATETIMESERVICE._serialized_end=194
+  _READYSERVICE._serialized_start=196
+  _READYSERVICE._serialized_end=256
 # @@protoc_insertion_point(module_scope)
