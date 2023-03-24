@@ -33,6 +33,7 @@ class DateTimeClient:
         response = self.stub.GetDateTime(request)
         return response.date_time
 
+
 class DateTimeServicer(tictactoe_pb2_grpc.DateTimeServiceServicer):
     def GetDateTime(self, request, context):
         current_time = datetime.datetime.utcnow()
@@ -40,7 +41,8 @@ class DateTimeServicer(tictactoe_pb2_grpc.DateTimeServiceServicer):
         response.date_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
         return response
 
-def update_clock(client): # Christian's algorithm for now
+
+def update_clock(client):  # Christian's algorithm for now
     start_time = time.time()
     server_time = datetime.datetime.strptime(client.get_datetime(), "%Y-%m-%d %H:%M:%S.%fZ")
     end_time = time.time()
@@ -50,9 +52,10 @@ def update_clock(client): # Christian's algorithm for now
     time_diff = estimated_server_time - client_time
 
     print("Client time: ", client_time)
-    #print("Estimated server time: ", estimated_server_time)
+    # print("Estimated server time: ", estimated_server_time)
     print("Time diff with server: ", abs(time_diff))
     return estimated_server_time
+
 
 def servers_ready():
     while True:
@@ -68,20 +71,27 @@ def servers_ready():
             print("Trying to contact peers again!")
     return
 
-def run_server():
+
+def game_loop():
+    print("Contacting peers!")
+    servers_ready()
+    print("All clients online!")
+
+
+if __name__ == "__main__":
     server = grpc.server(ThreadPoolExecutor(max_workers=5))
-    port = input("Insert server port: ")
-    server.add_insecure_port("[::]:" + port)
+    while True:
+        try:
+            port = input("Insert server port: ")
+            server.add_insecure_port("[::]:" + port)
+            break
+        except:
+            print("This port is taken, try again:")
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeServicer(), server)
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
-    with grpc.insecure_channel('localhost:20048') as channel:
-        client = DateTimeClient(channel)
-        update_clock(client)
-    servers_ready()
-    print("All clients online!")
-    server.wait_for_termination()
+    while True:
+        game_loop()
 
-if __name__ == "__main__":
-    run_server()
+    server.wait_for_termination()
