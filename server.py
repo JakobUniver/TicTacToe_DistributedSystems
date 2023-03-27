@@ -256,6 +256,11 @@ def list_board():
 
 
 def set_symbol(symbols):
+    symbol = symbols[0].split(',')[1]
+    player_symbol = MY_ROLE.split(' ')[1]
+    if symbol != player_symbol:
+        print("Only your own symbol can be inserted. Try again.")
+        return 'FAIL'
     with grpc.insecure_channel(f'localhost:{MASTER_PORT}') as channel:
         stub = tictactoe_pb2_grpc.GameServiceStub(channel)
         response = stub.SetSymbol(tictactoe_pb2.SetSymbolRequest(symbols=symbols[0]))
