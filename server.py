@@ -7,7 +7,6 @@ import grpc
 import tictactoe_pb2
 import tictactoe_pb2_grpc
 
-
 COORDINATOR = None
 PORTS = ["20048", "20049", "20050"]
 MY_PORT = ''
@@ -17,6 +16,8 @@ PLAYER_PORTS.remove(MASTER_PORT)
 MY_ROLE = ''
 TIME_SYNCED = False
 BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+BOARD_nostamps = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+
 
 class ReadyClient:
     def __init__(self, channel):
@@ -66,6 +67,15 @@ class GameClient:
         self.stub = tictactoe_pb2_grpc.GameServiceStub(channel)
 
 
+def gameover_check(board):
+    return True if (board[0] != 'empty' and board[0] == board[1] == board[2]) or \
+                   (board[4] != 'empty' and board[3] == board[4] == board[5]) or \
+                   (board[8] != 'empty' and board[6] == board[7] == board[8]) or \
+                   (board[0] != 'empty' and board[0] == board[3] == board[6]) or \
+                   (board[4] != 'empty' and board[1] == board[4] == board[7]) or \
+                   (board[8] != 'empty' and board[2] == board[5] == board[8]) or \
+                   (board[4] != 'empty' and board[0] == board[4] == board[8]) or \
+                   (board[4] != 'empty' and board[2] == board[4] == board[6]) else False
 
 
 class GameService(tictactoe_pb2_grpc.GameServiceServicer):
@@ -76,9 +86,12 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
     def SetSymbol(self, request, context):
         slot, symbol = request.symbols.split(',')
         slot = int(slot)
-        if BOARD[slot-1] == 'empty':
-            BOARD[slot-1] = f'{symbol}:{time.time()}'
-            output = 'SUCCESS'
+
+        if BOARD[slot - 1] == 'empty':
+            BOARD[slot - 1] = f'{symbol}:{time.time()}'
+            BOARD_nostamps[slot - 1] = symbol
+            end = gameover_check(BOARD_nostamps)
+            output = 'GAMEOVER' if end else 'SUCCESS'
         else:
             output = 'FAIL'
         response = tictactoe_pb2.SetSymbolResponse(output=output)
@@ -89,6 +102,17 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
         response = tictactoe_pb2.SetTimeResponse(success=success)
         return response
 
+    def GameOver(self, request, context):
+        global BOARD, BOARD_nostamps
+        print(f'GAME OVER!')
+        print(f'Final board state: ')
+        list_board()
+        print()
+        print("Resetting the game in 5 seconds")
+        BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+        BOARD_nostamps = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+        response = tictactoe_pb2.GameOverResponse()
+        return response
 
 
 class ElectionClient:
@@ -102,12 +126,14 @@ class ElectionClient:
         response = self.stub.SendElection(request)
         return response
 
+
 class ElectionServicer(tictactoe_pb2_grpc.ElectionServiceServicer):
     def SendElection(self, request, context):
         print(f"Received election message from process {request.sender_id} with election ID {request.election_id}")
         result = tictactoe_pb2.ElectionResponse()
         result.success = True
         return result
+
 
 class CoordinatorClient:
     def __init__(self, channel):
@@ -129,6 +155,7 @@ class CoordinatorServicer(tictactoe_pb2_grpc.CoordinatorServiceServicer):
         response.success = True
         return response
 
+
 class AssignSymbolClient:
     def __init__(self, channel):
         self.stub = tictactoe_pb2_grpc.AssignSymbolServiceStub(channel)
@@ -147,6 +174,7 @@ class AssignSymbolServicer(tictactoe_pb2_grpc.AssignSymbolServiceServicer):
         response = tictactoe_pb2.AssignSymbolResponse()
         response.success = True
         return response
+
 
 def election():
     global COORDINATOR
@@ -182,6 +210,7 @@ def election():
                 print("Error with sending coordinator messages!")
                 print(e)
 
+
 def servers_ready():
     global TIME_SYNCED, PORTS
 
@@ -215,7 +244,6 @@ def sync_time():
         with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
             stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
             response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=avg_times[i]))
-            print(response.success)
     return
 
 
@@ -239,6 +267,10 @@ def set_symbol(symbols):
 
 
 def game_over():
+    for port in PORTS + [MY_PORT]:
+        with grpc.insecure_channel(f'localhost:{port}') as channel:
+            stub = tictactoe_pb2_grpc.GameServiceStub(channel)
+            response = stub.GameOver(tictactoe_pb2.GameOverMessage())
     pass
 
 
@@ -265,7 +297,7 @@ def assignSymbols():
 
 
 def game_loop():
-    global MY_PORT, MASTER_PORT, MY_ROLE
+    global MY_PORT, MASTER_PORT, MY_ROLE, BOARD, BOARD_nostamps
     print("Contacting peers!")
     servers_ready()
     print("All clients online!")
@@ -281,13 +313,17 @@ def game_loop():
 
     if MY_PORT == COORDINATOR:
         MY_ROLE = 'MASTER'
+        BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+        BOARD_nostamps = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
         assignSymbols()
 
     time.sleep(3)
     while True:
         args = input(f"{MY_ROLE}> ").split(' ')
         command = args[0]
-        if command == "Set-symbol" and MY_ROLE != 'MASTER':
+        if command == '' or command == 'Start-game' and MY_ROLE == 'MASTER':
+            pass
+        elif command == "Set-symbol" and MY_ROLE != 'MASTER':
             output = set_symbol(args[1:])
             if output == "GAMEOVER":
                 game_over()
@@ -299,7 +335,6 @@ def game_loop():
         else:
             print("Command not available, try again")
 
-    print("Resetting the game in 5 seconds")
     time.sleep(5)
     game_loop()
 
@@ -315,6 +350,7 @@ if __name__ == "__main__":
             break
         except:
             print("This port is taken, try again:")
+
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeService(), server)
     tictactoe_pb2_grpc.add_GameServiceServicer_to_server(GameService(), server)

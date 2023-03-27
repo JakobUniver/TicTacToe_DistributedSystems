@@ -82,10 +82,19 @@ message AssignSymbolResponse {
   bool success = 1;
 }
 
+message GameOverMessage {
+  // No field needed
+}
+
+message GameOverResponse {
+  // No field needed
+}
+
 service GameService {
   rpc ListBoard(ListBoardRequest) returns (ListBoardResponse);
   rpc SetSymbol(SetSymbolRequest) returns (SetSymbolResponse);
   rpc SetTime(SetTimeRequest) returns (SetTimeResponse);
+  rpc GameOver(GameOverMessage) returns (GameOverResponse);
 }
 
 service ElectionService {

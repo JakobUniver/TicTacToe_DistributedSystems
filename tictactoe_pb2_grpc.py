@@ -184,6 +184,11 @@ class GameServiceStub(object):
                 request_serializer=tictactoe__pb2.SetTimeRequest.SerializeToString,
                 response_deserializer=tictactoe__pb2.SetTimeResponse.FromString,
                 )
+        self.GameOver = channel.unary_unary(
+                '/GameService/GameOver',
+                request_serializer=tictactoe__pb2.GameOverMessage.SerializeToString,
+                response_deserializer=tictactoe__pb2.GameOverResponse.FromString,
+                )
 
 
 class GameServiceServicer(object):
@@ -207,6 +212,12 @@ class GameServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GameOver(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GameServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -224,6 +235,11 @@ def add_GameServiceServicer_to_server(servicer, server):
                     servicer.SetTime,
                     request_deserializer=tictactoe__pb2.SetTimeRequest.FromString,
                     response_serializer=tictactoe__pb2.SetTimeResponse.SerializeToString,
+            ),
+            'GameOver': grpc.unary_unary_rpc_method_handler(
+                    servicer.GameOver,
+                    request_deserializer=tictactoe__pb2.GameOverMessage.FromString,
+                    response_serializer=tictactoe__pb2.GameOverResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -283,6 +299,23 @@ class GameService(object):
         return grpc.experimental.unary_unary(request, target, '/GameService/SetTime',
             tictactoe__pb2.SetTimeRequest.SerializeToString,
             tictactoe__pb2.SetTimeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GameOver(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/GameService/GameOver',
+            tictactoe__pb2.GameOverMessage.SerializeToString,
+            tictactoe__pb2.GameOverResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
