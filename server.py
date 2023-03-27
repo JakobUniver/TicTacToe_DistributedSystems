@@ -17,7 +17,7 @@ MY_ROLE = ''
 TIME_SYNCED = False
 BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 BOARD_nostamps = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
-
+LAST_SYMBOL = ''
 
 class ReadyClient:
     def __init__(self, channel):
@@ -84,12 +84,15 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
         return response
 
     def SetSymbol(self, request, context):
+        global LAST_SYMBOL
         slot, symbol = request.symbols.split(',')
         slot = int(slot)
-
-        if BOARD[slot - 1] == 'empty':
+        if LAST_SYMBOL == symbol:
+            output = 'FAIL'
+        elif BOARD[slot - 1] == 'empty':
             BOARD[slot - 1] = f'{symbol}:{time.time()}'
             BOARD_nostamps[slot - 1] = symbol
+            LAST_SYMBOL = symbol
             end = gameover_check(BOARD_nostamps)
             output = 'GAMEOVER' if end else 'SUCCESS'
         else:
@@ -267,7 +270,7 @@ def set_symbol(symbols):
         if response.output == 'SUCCESS':
             print(response.output)
         elif response.output == 'FAIL':
-            print("Move failed, try another slot")
+            print("Move failed, wait for the other player or try another slot")
     return response.output
 
 
@@ -302,7 +305,7 @@ def assignSymbols():
 
 
 def game_loop():
-    global MY_PORT, MASTER_PORT, MY_ROLE, BOARD, BOARD_nostamps
+    global MY_PORT, MASTER_PORT, MY_ROLE, BOARD, BOARD_nostamps, LAST_SYMBOL
     print("Contacting peers!")
     servers_ready()
     print("All clients online!")
@@ -320,6 +323,7 @@ def game_loop():
         MY_ROLE = 'MASTER'
         BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
         BOARD_nostamps = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+        LAST_SYMBOL = ''
         assignSymbols()
 
     time.sleep(3)
