@@ -74,6 +74,14 @@ message SetTimeResponse {
   bool success = 1;
 }
 
+message AssignSymbolRequest {
+  string symbol = 1;
+}
+
+message AssignSymbolResponse {
+  bool success = 1;
+}
+
 service GameService {
   rpc ListBoard(ListBoardRequest) returns (ListBoardResponse);
   rpc SetSymbol(SetSymbolRequest) returns (SetSymbolResponse);
@@ -86,4 +94,8 @@ service ElectionService {
 
 service CoordinatorService {
   rpc CoordinatorElected(CoordinatorRequest) returns (CoordinatorResponse) {}
+}
+
+service AssignSymbolService {
+  rpc AssignSymbol(AssignSymbolRequest) returns (AssignSymbolResponse) {}
 }

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x0e\n\x0cReadyRequest\"\x1e\n\rReadyResponse\x12\r\n\x05ready\x18\x01 \x01(\x05\"\x14\n\x12GetDateTimeRequest\"(\n\x13GetDateTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\x02\"&\n\x12SetDateTimeRequest\x12\x10\n\x08\x61vg_time\x18\x01 \x01(\x02\"&\n\x13SetDateTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"9\n\x0f\x45lectionRequest\x12\x11\n\tsender_id\x18\x01 \x01(\x05\x12\x13\n\x0b\x65lection_id\x18\x02 \x01(\x05\"#\n\x10\x45lectionResponse\x12\x0f\n\x07success\x18\x02 \x01(\x08\")\n\x12\x43oordinatorRequest\x12\x13\n\x0bleader_port\x18\x01 \x01(\t\"&\n\x13\x43oordinatorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x12\n\x10ListBoardRequest\"\"\n\x11ListBoardResponse\x12\r\n\x05\x62oard\x18\x01 \x03(\t\"#\n\x10SetSymbolRequest\x12\x0f\n\x07symbols\x18\x01 \x01(\t\"#\n\x11SetSymbolResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\"\n\x0eSetTimeRequest\x12\x10\n\x08new_time\x18\x01 \x01(\x02\"\"\n\x0fSetTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32<\n\x0cReadyService\x12,\n\x0bServerReady\x12\r.ReadyRequest\x1a\x0e.ReadyResponse2\x85\x01\n\x0f\x44\x61teTimeService\x12\x38\n\x0bGetDateTime\x12\x13.GetDateTimeRequest\x1a\x14.GetDateTimeResponse\x12\x38\n\x0bSetDateTime\x12\x13.SetDateTimeRequest\x1a\x14.SetDateTimeResponse2\xa3\x01\n\x0bGameService\x12\x32\n\tListBoard\x12\x11.ListBoardRequest\x1a\x12.ListBoardResponse\x12\x32\n\tSetSymbol\x12\x11.SetSymbolRequest\x1a\x12.SetSymbolResponse\x12,\n\x07SetTime\x12\x0f.SetTimeRequest\x1a\x10.SetTimeResponse2H\n\x0f\x45lectionService\x12\x35\n\x0cSendElection\x12\x10.ElectionRequest\x1a\x11.ElectionResponse\"\x00\x32W\n\x12\x43oordinatorService\x12\x41\n\x12\x43oordinatorElected\x12\x13.CoordinatorRequest\x1a\x14.CoordinatorResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x0e\n\x0cReadyRequest\"\x1e\n\rReadyResponse\x12\r\n\x05ready\x18\x01 \x01(\x05\"\x14\n\x12GetDateTimeRequest\"(\n\x13GetDateTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\x02\"&\n\x12SetDateTimeRequest\x12\x10\n\x08\x61vg_time\x18\x01 \x01(\x02\"&\n\x13SetDateTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"9\n\x0f\x45lectionRequest\x12\x11\n\tsender_id\x18\x01 \x01(\x05\x12\x13\n\x0b\x65lection_id\x18\x02 \x01(\x05\"#\n\x10\x45lectionResponse\x12\x0f\n\x07success\x18\x02 \x01(\x08\")\n\x12\x43oordinatorRequest\x12\x13\n\x0bleader_port\x18\x01 \x01(\t\"&\n\x13\x43oordinatorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x12\n\x10ListBoardRequest\"\"\n\x11ListBoardResponse\x12\r\n\x05\x62oard\x18\x01 \x03(\t\"#\n\x10SetSymbolRequest\x12\x0f\n\x07symbols\x18\x01 \x01(\t\"#\n\x11SetSymbolResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\"\n\x0eSetTimeRequest\x12\x10\n\x08new_time\x18\x01 \x01(\x02\"\"\n\x0fSetTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x13\x41ssignSymbolRequest\x12\x0e\n\x06symbol\x18\x01 \x01(\t\"\'\n\x14\x41ssignSymbolResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32<\n\x0cReadyService\x12,\n\x0bServerReady\x12\r.ReadyRequest\x1a\x0e.ReadyResponse2\x85\x01\n\x0f\x44\x61teTimeService\x12\x38\n\x0bGetDateTime\x12\x13.GetDateTimeRequest\x1a\x14.GetDateTimeResponse\x12\x38\n\x0bSetDateTime\x12\x13.SetDateTimeRequest\x1a\x14.SetDateTimeResponse2\xa3\x01\n\x0bGameService\x12\x32\n\tListBoard\x12\x11.ListBoardRequest\x1a\x12.ListBoardResponse\x12\x32\n\tSetSymbol\x12\x11.SetSymbolRequest\x1a\x12.SetSymbolResponse\x12,\n\x07SetTime\x12\x0f.SetTimeRequest\x1a\x10.SetTimeResponse2H\n\x0f\x45lectionService\x12\x35\n\x0cSendElection\x12\x10.ElectionRequest\x1a\x11.ElectionResponse\"\x00\x32W\n\x12\x43oordinatorService\x12\x41\n\x12\x43oordinatorElected\x12\x13.CoordinatorRequest\x1a\x14.CoordinatorResponse\"\x00\x32T\n\x13\x41ssignSymbolService\x12=\n\x0c\x41ssignSymbol\x12\x14.AssignSymbolRequest\x1a\x15.AssignSymbolResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'tictactoe_pb2', globals())
@@ -52,14 +52,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SETTIMEREQUEST._serialized_end=554
   _SETTIMERESPONSE._serialized_start=556
   _SETTIMERESPONSE._serialized_end=590
-  _READYSERVICE._serialized_start=592
-  _READYSERVICE._serialized_end=652
-  _DATETIMESERVICE._serialized_start=655
-  _DATETIMESERVICE._serialized_end=788
-  _GAMESERVICE._serialized_start=791
-  _GAMESERVICE._serialized_end=954
-  _ELECTIONSERVICE._serialized_start=956
-  _ELECTIONSERVICE._serialized_end=1028
-  _COORDINATORSERVICE._serialized_start=1030
-  _COORDINATORSERVICE._serialized_end=1117
+  _ASSIGNSYMBOLREQUEST._serialized_start=592
+  _ASSIGNSYMBOLREQUEST._serialized_end=629
+  _ASSIGNSYMBOLRESPONSE._serialized_start=631
+  _ASSIGNSYMBOLRESPONSE._serialized_end=670
+  _READYSERVICE._serialized_start=672
+  _READYSERVICE._serialized_end=732
+  _DATETIMESERVICE._serialized_start=735
+  _DATETIMESERVICE._serialized_end=868
+  _GAMESERVICE._serialized_start=871
+  _GAMESERVICE._serialized_end=1034
+  _ELECTIONSERVICE._serialized_start=1036
+  _ELECTIONSERVICE._serialized_end=1108
+  _COORDINATORSERVICE._serialized_start=1110
+  _COORDINATORSERVICE._serialized_end=1197
+  _ASSIGNSYMBOLSERVICE._serialized_start=1199
+  _ASSIGNSYMBOLSERVICE._serialized_end=1283
 # @@protoc_insertion_point(module_scope)

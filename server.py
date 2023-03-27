@@ -8,13 +8,15 @@ import tictactoe_pb2
 import tictactoe_pb2_grpc
 
 
-coordinator = None
+COORDINATOR = None
 PORTS = ["20048", "20049", "20050"]
 MY_PORT = ''
 MASTER_PORT = '20048'
 PLAYER_PORTS = PORTS[:]
 PLAYER_PORTS.remove(MASTER_PORT)
 MY_ROLE = ''
+TIME_SYNCED = False
+BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 
 class ReadyClient:
     def __init__(self, channel):
@@ -64,7 +66,6 @@ class GameClient:
         self.stub = tictactoe_pb2_grpc.GameServiceStub(channel)
 
 
-BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 
 
 class GameService(tictactoe_pb2_grpc.GameServiceServicer):
@@ -89,7 +90,6 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
         return response
 
 
-TIME_SYNCED = False
 
 class ElectionClient:
     def __init__(self, channel):
@@ -122,18 +122,37 @@ class CoordinatorClient:
 
 class CoordinatorServicer(tictactoe_pb2_grpc.CoordinatorServiceServicer):
     def CoordinatorElected(self, request, context):
-        global coordinator
+        global COORDINATOR
         response = tictactoe_pb2.CoordinatorResponse()
-        coordinator = request.leader_port
-        print(f"Elected coordinator is Node{PORTS.index(coordinator)} (port {coordinator})")
+        COORDINATOR = request.leader_port
+        print(f"Elected coordinator is Node{PORTS.index(COORDINATOR)} (port {COORDINATOR})")
         response.success = True
         return response
 
-def election(port):
-    global coordinator
-    if coordinator != None:
+class AssignSymbolClient:
+    def __init__(self, channel):
+        self.stub = tictactoe_pb2_grpc.AssignSymbolServiceStub(channel)
+
+    def assign_symbol(self, symbol):
+        request = tictactoe_pb2.AssignSymbolRequest()
+        request.symbol = symbol
+        response = self.stub.AssignSymbol(request)
+        return response
+
+
+class AssignSymbolServicer(tictactoe_pb2_grpc.AssignSymbolServiceServicer):
+    def AssignSymbol(self, request, context):
+        global MY_ROLE
+        MY_ROLE = request.symbol
+        response = tictactoe_pb2.AssignSymbolResponse()
+        response.success = True
+        return response
+
+def election():
+    global COORDINATOR
+    if COORDINATOR != None:
         return
-    num = PORTS.index(port)
+    num = PORTS.index(MY_PORT)
     successful = [0 for port in PORTS]
 
     for send in range(num + 1, len(PORTS) - 1):
@@ -152,15 +171,16 @@ def election(port):
         except grpc.RpcError as e:
             print("Error with sending election messages!")
             print(e)
+    print(successful)
     if sum(successful) == 0:
-        coordinator = port
+        COORDINATOR = MY_PORT
         for send_port in PORTS:
-            if send_port == port:
+            if send_port == MY_PORT:
                 continue
             try:
                 with grpc.insecure_channel(f'localhost:{send_port}') as channel:
                     client = CoordinatorClient(channel)
-                    response = client.coordinator_elected(port)
+                    response = client.coordinator_elected(MY_PORT)
                     if response.success:
                         print(f"Successful coordinator message to {send_port}")
             except grpc.RpcError as e:
@@ -231,6 +251,23 @@ def set_time(param):
     pass
 
 
+def assignSymbols():
+    with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
+        client = AssignSymbolClient(channel)
+        response = client.assign_symbol('PLAYER X')
+        if response.success:
+            print(f"Port {PORTS[0]} asssigned symbol X")
+        else:
+            print("Symbol assignment failed!")
+    with grpc.insecure_channel(f'localhost:{PORTS[1]}') as channel:
+        client = AssignSymbolClient(channel)
+        response = client.assign_symbol('PLAYER O')
+        if response.success:
+            print(f"Port {PORTS[1]} asssigned symbol O")
+        else:
+            print("Symbol assignment failed!")
+    return
+
 
 def game_loop():
     global MY_PORT, MASTER_PORT, MY_ROLE
@@ -238,21 +275,22 @@ def game_loop():
     servers_ready()
     print("All clients online!")
 
+    time.sleep(3)
+
     PORTS.append(MY_PORT)
     PORTS.sort()
-    election(MY_PORT)
+    election()
     PORTS.remove(MY_PORT)
 
-    #TODO LEADER ELECTION
-    ## Dummy leader election
-    if MY_PORT == '20048':
+    if MY_PORT == COORDINATOR:
         MY_ROLE = 'MASTER'
-    elif MY_PORT == '20049':
-        MY_ROLE = 'PLAYER X'
-    elif MY_PORT == '20050':
-        MY_ROLE = 'PLAYER O'
+        assignSymbols()
+    # elif MY_PORT == '20049':
+    #     MY_ROLE = 'PLAYER X'
+    # elif MY_PORT == '20050':
+    #     MY_ROLE = 'PLAYER O'
 
-    time.sleep(0.5)
+    time.sleep(3)
     while True:
         args = input(f"{MY_ROLE}> ").split(' ')
         command = args[0]
@@ -289,6 +327,7 @@ if __name__ == "__main__":
     tictactoe_pb2_grpc.add_GameServiceServicer_to_server(GameService(), server)
     tictactoe_pb2_grpc.add_ElectionServiceServicer_to_server(ElectionServicer(), server)
     tictactoe_pb2_grpc.add_CoordinatorServiceServicer_to_server(CoordinatorServicer(), server)
+    tictactoe_pb2_grpc.add_AssignSymbolServiceServicer_to_server(AssignSymbolServicer(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
 
