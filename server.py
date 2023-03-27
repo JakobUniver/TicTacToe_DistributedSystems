@@ -30,16 +30,29 @@ class DateTimeClient:
         self.stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
 
     def get_datetime(self):
-        request = tictactoe_pb2.DateTimeRequest()
+        request = tictactoe_pb2.GetDateTimeRequest()
         response = self.stub.GetDateTime(request)
         return response.date_time
 
+    def set_datetime(self, time_diff):
+        request = tictactoe_pb2.SetDateTimeRequest(time_diff)
+        response = self.stub.SetDateTime(request)
+        return response.success
 
-class DateTimeServicer(tictactoe_pb2_grpc.DateTimeServiceServicer):
+
+class DateTimeService(tictactoe_pb2_grpc.DateTimeServiceServicer):
     def GetDateTime(self, request, context):
-        current_time = datetime.datetime.utcnow()
-        response = tictactoe_pb2.DateTimeResponse()
-        response.date_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + "Z"
+        current_time = time.time()
+        response = tictactoe_pb2.GetDateTimeResponse(date_time=current_time)
+        return response
+
+    def SetDateTime(self, request, context):
+        global time_synced
+        avg_time = request.avg_time
+        time_diff = datetime.datetime.fromtimestamp(time.time()) - datetime.datetime.fromtimestamp(avg_time)
+        time_synced = True
+        print(f"Time difference: {time_diff}")
+        response = tictactoe_pb2.SetDateTimeResponse(success=True)
         return response
 
 
@@ -59,21 +72,41 @@ def update_clock(client):  # Christian's algorithm for now
 
 
 def sync_time():
-    pass
+    times = [time.time()]
+    for port in ports:
+        with grpc.insecure_channel(f'localhost:{port}') as channel:
+            #client = DateTimeClient(channel)
+            #response = client.get_datetime()
+            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            response = stub.GetDateTime(tictactoe_pb2.GetDateTimeRequest())
+            times.append(response.date_time)
+    avg_times = [sum(times) / len(times) for t in times[1:]]
+    for i in range(len(ports)):
+        with grpc.insecure_channel(f'localhost:{ports[0]}') as channel:
+            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=avg_times[i]))
+            print(response.success)
+    return
 
 
 time_synced = False
+
+
 def servers_ready():
     global time_synced, ports
-    while True:
+    while not time_synced:
         try:
             for port in ports:
-                with grpc.insecure_channel(f'localhost:{port}') as channel1:
-                    client = ReadyClient(channel1)
+                with grpc.insecure_channel(f'localhost:{port}') as channel:
+                    client = ReadyClient(channel)
                     response = client.server_ready()
-            if not time_synced:
+            time.sleep(1)
+            if time_synced:
+                break
+            else:
+                print("Start timesync")
+                sync_time()
                 time_synced = True
-            break
         except grpc.RpcError as e:
             print("Trying to contact peers again!")
     return
@@ -97,11 +130,13 @@ if __name__ == "__main__":
             break
         except:
             print("This port is taken, try again:")
-    tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeServicer(), server)
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
+    tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeService(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
-    while True:
-        game_loop()
 
+    #while True:
+    game_loop()
+
+    print("End")
     server.wait_for_termination()

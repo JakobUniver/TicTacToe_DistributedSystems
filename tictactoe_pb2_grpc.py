@@ -16,8 +16,13 @@ class DateTimeServiceStub(object):
         """
         self.GetDateTime = channel.unary_unary(
                 '/DateTimeService/GetDateTime',
-                request_serializer=tictactoe__pb2.DateTimeRequest.SerializeToString,
-                response_deserializer=tictactoe__pb2.DateTimeResponse.FromString,
+                request_serializer=tictactoe__pb2.GetDateTimeRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.GetDateTimeResponse.FromString,
+                )
+        self.SetDateTime = channel.unary_unary(
+                '/DateTimeService/SetDateTime',
+                request_serializer=tictactoe__pb2.SetDateTimeRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.SetDateTimeResponse.FromString,
                 )
 
 
@@ -30,13 +35,24 @@ class DateTimeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SetDateTime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DateTimeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetDateTime': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDateTime,
-                    request_deserializer=tictactoe__pb2.DateTimeRequest.FromString,
-                    response_serializer=tictactoe__pb2.DateTimeResponse.SerializeToString,
+                    request_deserializer=tictactoe__pb2.GetDateTimeRequest.FromString,
+                    response_serializer=tictactoe__pb2.GetDateTimeResponse.SerializeToString,
+            ),
+            'SetDateTime': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetDateTime,
+                    request_deserializer=tictactoe__pb2.SetDateTimeRequest.FromString,
+                    response_serializer=tictactoe__pb2.SetDateTimeResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -60,8 +76,25 @@ class DateTimeService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/DateTimeService/GetDateTime',
-            tictactoe__pb2.DateTimeRequest.SerializeToString,
-            tictactoe__pb2.DateTimeResponse.FromString,
+            tictactoe__pb2.GetDateTimeRequest.SerializeToString,
+            tictactoe__pb2.GetDateTimeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetDateTime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/DateTimeService/SetDateTime',
+            tictactoe__pb2.SetDateTimeRequest.SerializeToString,
+            tictactoe__pb2.SetDateTimeResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

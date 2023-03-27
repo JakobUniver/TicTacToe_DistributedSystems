@@ -1,11 +1,24 @@
 syntax = "proto3";
 
-message DateTimeRequest {
+message GetDateTimeRequest {
   // No fields needed
 }
 
-message DateTimeResponse {
-  string date_time = 1;
+message GetDateTimeResponse {
+  float date_time = 1;
+}
+
+message SetDateTimeRequest {
+  float avg_time = 1;
+}
+
+message SetDateTimeResponse {
+  bool success = 1;
+}
+
+service DateTimeService {
+  rpc GetDateTime(GetDateTimeRequest) returns (GetDateTimeResponse);
+  rpc SetDateTime(SetDateTimeRequest) returns (SetDateTimeResponse);
 }
 
 message ReadyRequest {
@@ -14,10 +27,6 @@ message ReadyRequest {
 
 message ReadyResponse {
   int32 ready = 1;
-}
-
-service DateTimeService {
-  rpc GetDateTime(DateTimeRequest) returns (DateTimeResponse);
 }
 
 service ReadyService {
