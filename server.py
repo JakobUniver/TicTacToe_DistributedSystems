@@ -65,7 +65,13 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
         return response
 
     def SetSymbol(self, request, context):
-        output = ''
+        slot, symbol = request.symbols.split(',')
+        slot = int(slot)
+        if BOARD[slot-1] == 'empty':
+            BOARD[slot-1] = f'{symbol}:{time.time()}'
+            output = 'SUCCESS'
+        else:
+            output = 'FAIL'
         response = tictactoe_pb2.SetSymbolResponse(output=output)
         return response
 
@@ -73,22 +79,6 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
         success = True
         response = tictactoe_pb2.SetTimeResponse(success=success)
         return response
-
-
-def sync_time():
-    times = [time.time()]
-    for port in PORTS:
-        with grpc.insecure_channel(f'localhost:{port}') as channel:
-            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
-            response = stub.GetDateTime(tictactoe_pb2.GetDateTimeRequest())
-            times.append(response.date_time)
-    avg_times = [sum(times) / len(times) for t in times[1:]]
-    for i in range(len(PORTS)):
-        with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
-            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
-            response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=avg_times[i]))
-            print(response.success)
-    return
 
 
 TIME_SYNCED = False
@@ -115,6 +105,22 @@ def servers_ready():
     return
 
 
+def sync_time():
+    times = [time.time()]
+    for port in PORTS:
+        with grpc.insecure_channel(f'localhost:{port}') as channel:
+            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            response = stub.GetDateTime(tictactoe_pb2.GetDateTimeRequest())
+            times.append(response.date_time)
+    avg_times = [sum(times) / len(times) for t in times[1:]]
+    for i in range(len(PORTS)):
+        with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
+            stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=avg_times[i]))
+            print(response.success)
+    return
+
+
 def list_board():
     with grpc.insecure_channel(f'localhost:{MASTER_PORT}') as channel:
         stub = tictactoe_pb2_grpc.GameServiceStub(channel)
@@ -123,8 +129,19 @@ def list_board():
     return
 
 
-def set_symbol(param):
-    return ''
+def set_symbol(symbols):
+    with grpc.insecure_channel(f'localhost:{MASTER_PORT}') as channel:
+        stub = tictactoe_pb2_grpc.GameServiceStub(channel)
+        response = stub.SetSymbol(tictactoe_pb2.SetSymbolRequest(symbols=symbols[0]))
+        if response.output == 'SUCCESS':
+            print(response.output)
+        elif response.output == 'FAIL':
+            print("Move failed, try another slot")
+    return response.output
+
+
+def game_over():
+    pass
 
 
 def set_time(param):
@@ -139,9 +156,6 @@ PLAYER_PORTS.remove(MASTER_PORT)
 MY_ROLE = ''
 
 
-def game_over():
-    pass
-
 
 def game_loop():
     global MY_PORT, MASTER_PORT, MY_ROLE
@@ -152,17 +166,17 @@ def game_loop():
     #TODO LEADER ELECTION
     ## Dummy leader election
     if MY_PORT == '20048':
-        MY_ROLE = 'LEADER'
+        MY_ROLE = 'MASTER'
     elif MY_PORT == '20049':
-        MY_ROLE = 'PLAYER 1'
+        MY_ROLE = 'PLAYER X'
     elif MY_PORT == '20050':
-        MY_ROLE = 'PLAYER 2'
+        MY_ROLE = 'PLAYER O'
 
     time.sleep(0.5)
     while True:
         args = input(f"{MY_ROLE}> ").split(' ')
         command = args[0]
-        if command == "Set-symbol":
+        if command == "Set-symbol" and MY_ROLE != 'MASTER':
             output = set_symbol(args[1:])
             if output == "GAMEOVER":
                 game_over()
