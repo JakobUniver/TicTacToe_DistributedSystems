@@ -13,25 +13,25 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x14\n\x12GetDateTimeRequest\"(\n\x13GetDateTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\x02\"&\n\x12SetDateTimeRequest\x12\x10\n\x08\x61vg_time\x18\x01 \x01(\x02\"&\n\x13SetDateTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x0e\n\x0cReadyRequest\"\x1e\n\rReadyResponse\x12\r\n\x05ready\x18\x01 \x01(\x05\"\x12\n\x10ListBoardRequest\"\"\n\x11ListBoardResponse\x12\r\n\x05\x61rray\x18\x01 \x03(\t\"#\n\x10SetSymbolRequest\x12\x0f\n\x07symbols\x18\x01 \x01(\t\"#\n\x11SetSymbolResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\"\n\x0eSetTimeRequest\x12\x10\n\x08new_time\x18\x01 \x01(\x02\"\"\n\x0fSetTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32\x85\x01\n\x0f\x44\x61teTimeService\x12\x38\n\x0bGetDateTime\x12\x13.GetDateTimeRequest\x1a\x14.GetDateTimeResponse\x12\x38\n\x0bSetDateTime\x12\x13.SetDateTimeRequest\x1a\x14.SetDateTimeResponse2<\n\x0cReadyService\x12,\n\x0bServerReady\x12\r.ReadyRequest\x1a\x0e.ReadyResponse2\xa3\x01\n\x0bGameService\x12\x32\n\tListBoard\x12\x11.ListBoardRequest\x1a\x12.ListBoardResponse\x12\x32\n\tSetSymbol\x12\x11.SetSymbolRequest\x1a\x12.SetSymbolResponse\x12,\n\x07SetTime\x12\x0f.SetTimeRequest\x1a\x10.SetTimeResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftictactoe.proto\"\x0e\n\x0cReadyRequest\"\x1e\n\rReadyResponse\x12\r\n\x05ready\x18\x01 \x01(\x05\"\x14\n\x12GetDateTimeRequest\"(\n\x13GetDateTimeResponse\x12\x11\n\tdate_time\x18\x01 \x01(\x02\"&\n\x12SetDateTimeRequest\x12\x10\n\x08\x61vg_time\x18\x01 \x01(\x02\"&\n\x13SetDateTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x12\n\x10ListBoardRequest\"\"\n\x11ListBoardResponse\x12\r\n\x05\x62oard\x18\x01 \x03(\t\"#\n\x10SetSymbolRequest\x12\x0f\n\x07symbols\x18\x01 \x01(\t\"#\n\x11SetSymbolResponse\x12\x0e\n\x06output\x18\x01 \x01(\t\"\"\n\x0eSetTimeRequest\x12\x10\n\x08new_time\x18\x01 \x01(\x02\"\"\n\x0fSetTimeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x32<\n\x0cReadyService\x12,\n\x0bServerReady\x12\r.ReadyRequest\x1a\x0e.ReadyResponse2\x85\x01\n\x0f\x44\x61teTimeService\x12\x38\n\x0bGetDateTime\x12\x13.GetDateTimeRequest\x1a\x14.GetDateTimeResponse\x12\x38\n\x0bSetDateTime\x12\x13.SetDateTimeRequest\x1a\x14.SetDateTimeResponse2\xa3\x01\n\x0bGameService\x12\x32\n\tListBoard\x12\x11.ListBoardRequest\x1a\x12.ListBoardResponse\x12\x32\n\tSetSymbol\x12\x11.SetSymbolRequest\x1a\x12.SetSymbolResponse\x12,\n\x07SetTime\x12\x0f.SetTimeRequest\x1a\x10.SetTimeResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'tictactoe_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _GETDATETIMEREQUEST._serialized_start=19
-  _GETDATETIMEREQUEST._serialized_end=39
-  _GETDATETIMERESPONSE._serialized_start=41
-  _GETDATETIMERESPONSE._serialized_end=81
-  _SETDATETIMEREQUEST._serialized_start=83
-  _SETDATETIMEREQUEST._serialized_end=121
-  _SETDATETIMERESPONSE._serialized_start=123
-  _SETDATETIMERESPONSE._serialized_end=161
-  _READYREQUEST._serialized_start=163
-  _READYREQUEST._serialized_end=177
-  _READYRESPONSE._serialized_start=179
-  _READYRESPONSE._serialized_end=209
+  _READYREQUEST._serialized_start=19
+  _READYREQUEST._serialized_end=33
+  _READYRESPONSE._serialized_start=35
+  _READYRESPONSE._serialized_end=65
+  _GETDATETIMEREQUEST._serialized_start=67
+  _GETDATETIMEREQUEST._serialized_end=87
+  _GETDATETIMERESPONSE._serialized_start=89
+  _GETDATETIMERESPONSE._serialized_end=129
+  _SETDATETIMEREQUEST._serialized_start=131
+  _SETDATETIMEREQUEST._serialized_end=169
+  _SETDATETIMERESPONSE._serialized_start=171
+  _SETDATETIMERESPONSE._serialized_end=209
   _LISTBOARDREQUEST._serialized_start=211
   _LISTBOARDREQUEST._serialized_end=229
   _LISTBOARDRESPONSE._serialized_start=231
@@ -44,10 +44,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SETTIMEREQUEST._serialized_end=375
   _SETTIMERESPONSE._serialized_start=377
   _SETTIMERESPONSE._serialized_end=411
-  _DATETIMESERVICE._serialized_start=414
-  _DATETIMESERVICE._serialized_end=547
-  _READYSERVICE._serialized_start=549
-  _READYSERVICE._serialized_end=609
+  _READYSERVICE._serialized_start=413
+  _READYSERVICE._serialized_end=473
+  _DATETIMESERVICE._serialized_start=476
+  _DATETIMESERVICE._serialized_end=609
   _GAMESERVICE._serialized_start=612
   _GAMESERVICE._serialized_end=775
 # @@protoc_insertion_point(module_scope)

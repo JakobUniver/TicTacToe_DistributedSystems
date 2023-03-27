@@ -51,6 +51,30 @@ class DateTimeService(tictactoe_pb2_grpc.DateTimeServiceServicer):
         return response
 
 
+class GameClient:
+    def __init__(self, channel):
+        self.stub = tictactoe_pb2_grpc.GameServiceStub(channel)
+
+
+BOARD = ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+
+
+class GameService(tictactoe_pb2_grpc.GameServiceServicer):
+    def ListBoard(self, request, context):
+        response = tictactoe_pb2.ListBoardResponse(board=BOARD)
+        return response
+
+    def SetSymbol(self, request, context):
+        output = ''
+        response = tictactoe_pb2.SetSymbolResponse(output=output)
+        return response
+
+    def SetTime(self, request, context):
+        success = True
+        response = tictactoe_pb2.SetTimeResponse(success=success)
+        return response
+
+
 def sync_time():
     times = [time.time()]
     for port in PORTS:
@@ -92,7 +116,11 @@ def servers_ready():
 
 
 def list_board():
-    pass
+    with grpc.insecure_channel(f'localhost:{MASTER_PORT}') as channel:
+        stub = tictactoe_pb2_grpc.GameServiceStub(channel)
+        response = stub.ListBoard(tictactoe_pb2.ListBoardRequest())
+        print(response.board)
+    return
 
 
 def set_symbol(param):
@@ -146,6 +174,8 @@ def game_loop():
         else:
             print("Command not available, try again")
 
+    print("Resetting the game in 5 seconds")
+    time.sleep(5)
     game_loop()
 
 
@@ -162,7 +192,7 @@ if __name__ == "__main__":
             print("This port is taken, try again:")
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeService(), server)
-    #tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(GameService(), server)
+    tictactoe_pb2_grpc.add_GameServiceServicer_to_server(GameService(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
 

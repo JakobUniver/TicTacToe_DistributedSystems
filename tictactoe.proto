@@ -1,5 +1,17 @@
 syntax = "proto3";
 
+message ReadyRequest {
+  // No field needed
+}
+
+message ReadyResponse {
+  int32 ready = 1;
+}
+
+service ReadyService {
+  rpc ServerReady(ReadyRequest) returns (ReadyResponse);
+}
+
 message GetDateTimeRequest {
   // No fields needed
 }
@@ -21,24 +33,12 @@ service DateTimeService {
   rpc SetDateTime(SetDateTimeRequest) returns (SetDateTimeResponse);
 }
 
-message ReadyRequest {
-  // No field needed
-}
-
-message ReadyResponse {
-  int32 ready = 1;
-}
-
-service ReadyService {
-  rpc ServerReady(ReadyRequest) returns (ReadyResponse);
-}
-
 message ListBoardRequest {
   // No field needed
 }
 
 message ListBoardResponse {
-  repeated string array = 1;
+  repeated string board = 1;
 }
 
 message SetSymbolRequest {
