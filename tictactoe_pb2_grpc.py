@@ -285,3 +285,125 @@ class GameService(object):
             tictactoe__pb2.SetTimeResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class ElectionServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.SendElection = channel.unary_unary(
+                '/ElectionService/SendElection',
+                request_serializer=tictactoe__pb2.ElectionRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.ElectionResponse.FromString,
+                )
+
+
+class ElectionServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def SendElection(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ElectionServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'SendElection': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendElection,
+                    request_deserializer=tictactoe__pb2.ElectionRequest.FromString,
+                    response_serializer=tictactoe__pb2.ElectionResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'ElectionService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class ElectionService(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def SendElection(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ElectionService/SendElection',
+            tictactoe__pb2.ElectionRequest.SerializeToString,
+            tictactoe__pb2.ElectionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class CoordinatorServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.CoordinatorElected = channel.unary_unary(
+                '/CoordinatorService/CoordinatorElected',
+                request_serializer=tictactoe__pb2.CoordinatorRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.CoordinatorResponse.FromString,
+                )
+
+
+class CoordinatorServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def CoordinatorElected(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_CoordinatorServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'CoordinatorElected': grpc.unary_unary_rpc_method_handler(
+                    servicer.CoordinatorElected,
+                    request_deserializer=tictactoe__pb2.CoordinatorRequest.FromString,
+                    response_serializer=tictactoe__pb2.CoordinatorResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'CoordinatorService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class CoordinatorService(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def CoordinatorElected(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/CoordinatorService/CoordinatorElected',
+            tictactoe__pb2.CoordinatorRequest.SerializeToString,
+            tictactoe__pb2.CoordinatorResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

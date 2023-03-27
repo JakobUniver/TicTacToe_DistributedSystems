@@ -28,6 +28,23 @@ message SetDateTimeResponse {
   bool success = 1;
 }
 
+message ElectionRequest {
+  int32 sender_id = 1;
+  int32 election_id = 2;
+}
+
+message ElectionResponse {
+  bool success = 2;
+}
+
+message CoordinatorRequest {
+  string leader_port = 1;
+}
+
+message CoordinatorResponse {
+  bool success = 1;
+}
+
 service DateTimeService {
   rpc GetDateTime(GetDateTimeRequest) returns (GetDateTimeResponse);
   rpc SetDateTime(SetDateTimeRequest) returns (SetDateTimeResponse);
@@ -61,4 +78,12 @@ service GameService {
   rpc ListBoard(ListBoardRequest) returns (ListBoardResponse);
   rpc SetSymbol(SetSymbolRequest) returns (SetSymbolResponse);
   rpc SetTime(SetTimeRequest) returns (SetTimeResponse);
+}
+
+service ElectionService {
+  rpc SendElection(ElectionRequest) returns (ElectionResponse) {}
+}
+
+service CoordinatorService {
+  rpc CoordinatorElected(CoordinatorRequest) returns (CoordinatorResponse) {}
 }

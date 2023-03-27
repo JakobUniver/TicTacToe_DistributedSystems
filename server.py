@@ -8,6 +8,14 @@ import tictactoe_pb2
 import tictactoe_pb2_grpc
 
 
+coordinator = None
+PORTS = ["20048", "20049", "20050"]
+MY_PORT = ''
+MASTER_PORT = '20048'
+PLAYER_PORTS = PORTS[:]
+PLAYER_PORTS.remove(MASTER_PORT)
+MY_ROLE = ''
+
 class ReadyClient:
     def __init__(self, channel):
         self.stub = tictactoe_pb2_grpc.ReadyServiceStub(channel)
@@ -83,6 +91,81 @@ class GameService(tictactoe_pb2_grpc.GameServiceServicer):
 
 TIME_SYNCED = False
 
+class ElectionClient:
+    def __init__(self, channel):
+        self.stub = tictactoe_pb2_grpc.ElectionServiceStub(channel)
+
+    def send_election(self, sender_id, election_id):
+        request = tictactoe_pb2.ElectionRequest()
+        request.sender_id = sender_id
+        request.election_id = election_id
+        response = self.stub.SendElection(request)
+        return response
+
+class ElectionServicer(tictactoe_pb2_grpc.ElectionServiceServicer):
+    def SendElection(self, request, context):
+        print(f"Received election message from process {request.sender_id} with election ID {request.election_id}")
+        result = tictactoe_pb2.ElectionResponse()
+        result.success = True
+        return result
+
+class CoordinatorClient:
+    def __init__(self, channel):
+        self.stub = tictactoe_pb2_grpc.CoordinatorServiceStub(channel)
+
+    def coordinator_elected(self, leader):
+        request = tictactoe_pb2.CoordinatorRequest()
+        request.leader_port = leader
+        response = self.stub.CoordinatorElected(request)
+        return response
+
+
+class CoordinatorServicer(tictactoe_pb2_grpc.CoordinatorServiceServicer):
+    def CoordinatorElected(self, request, context):
+        global coordinator
+        response = tictactoe_pb2.CoordinatorResponse()
+        coordinator = request.leader_port
+        print(f"Elected coordinator is Node{PORTS.index(coordinator)} (port {coordinator})")
+        response.success = True
+        return response
+
+def election(port):
+    global coordinator
+    if coordinator != None:
+        return
+    num = PORTS.index(port)
+    successful = [0 for port in PORTS]
+
+    for send in range(num + 1, len(PORTS) - 1):
+        send_port = PORTS[send]
+        print(num)
+        print(send)
+        print(send_port)
+        print()
+        try:
+            with grpc.insecure_channel(f'localhost:{send_port}') as channel:
+                client = ElectionClient(channel)
+                response = client.send_election(num, len(PORTS) - 1)
+                if response.success:
+                    print(f"Successful election response from {send_port}")
+                    successful[send] = 1
+        except grpc.RpcError as e:
+            print("Error with sending election messages!")
+            print(e)
+    if sum(successful) == 0:
+        coordinator = port
+        for send_port in PORTS:
+            if send_port == port:
+                continue
+            try:
+                with grpc.insecure_channel(f'localhost:{send_port}') as channel:
+                    client = CoordinatorClient(channel)
+                    response = client.coordinator_elected(port)
+                    if response.success:
+                        print(f"Successful coordinator message to {send_port}")
+            except grpc.RpcError as e:
+                print("Error with sending coordinator messages!")
+                print(e)
 
 def servers_ready():
     global TIME_SYNCED, PORTS
@@ -148,20 +231,17 @@ def set_time(param):
     pass
 
 
-PORTS = ["20048", "20049", "20050"]
-MY_PORT = ''
-MASTER_PORT = '20048'
-PLAYER_PORTS = PORTS[:]
-PLAYER_PORTS.remove(MASTER_PORT)
-MY_ROLE = ''
-
-
 
 def game_loop():
     global MY_PORT, MASTER_PORT, MY_ROLE
     print("Contacting peers!")
     servers_ready()
     print("All clients online!")
+
+    PORTS.append(MY_PORT)
+    PORTS.sort()
+    election(MY_PORT)
+    PORTS.remove(MY_PORT)
 
     #TODO LEADER ELECTION
     ## Dummy leader election
@@ -207,6 +287,8 @@ if __name__ == "__main__":
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeService(), server)
     tictactoe_pb2_grpc.add_GameServiceServicer_to_server(GameService(), server)
+    tictactoe_pb2_grpc.add_ElectionServiceServicer_to_server(ElectionServicer(), server)
+    tictactoe_pb2_grpc.add_CoordinatorServiceServicer_to_server(CoordinatorServicer(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
 
