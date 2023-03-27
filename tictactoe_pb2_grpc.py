@@ -158,3 +158,130 @@ class ReadyService(object):
             tictactoe__pb2.ReadyResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class GameServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.ListBoard = channel.unary_unary(
+                '/GameService/ListBoard',
+                request_serializer=tictactoe__pb2.ListBoardRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.ListBoardResponse.FromString,
+                )
+        self.SetSymbol = channel.unary_unary(
+                '/GameService/SetSymbol',
+                request_serializer=tictactoe__pb2.SetSymbolRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.SetSymbolResponse.FromString,
+                )
+        self.SetTime = channel.unary_unary(
+                '/GameService/SetTime',
+                request_serializer=tictactoe__pb2.SetTimeRequest.SerializeToString,
+                response_deserializer=tictactoe__pb2.SetTimeResponse.FromString,
+                )
+
+
+class GameServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def ListBoard(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetSymbol(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetTime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_GameServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'ListBoard': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListBoard,
+                    request_deserializer=tictactoe__pb2.ListBoardRequest.FromString,
+                    response_serializer=tictactoe__pb2.ListBoardResponse.SerializeToString,
+            ),
+            'SetSymbol': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetSymbol,
+                    request_deserializer=tictactoe__pb2.SetSymbolRequest.FromString,
+                    response_serializer=tictactoe__pb2.SetSymbolResponse.SerializeToString,
+            ),
+            'SetTime': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetTime,
+                    request_deserializer=tictactoe__pb2.SetTimeRequest.FromString,
+                    response_serializer=tictactoe__pb2.SetTimeResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'GameService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class GameService(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def ListBoard(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/GameService/ListBoard',
+            tictactoe__pb2.ListBoardRequest.SerializeToString,
+            tictactoe__pb2.ListBoardResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetSymbol(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/GameService/SetSymbol',
+            tictactoe__pb2.SetSymbolRequest.SerializeToString,
+            tictactoe__pb2.SetSymbolResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetTime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/GameService/SetTime',
+            tictactoe__pb2.SetTimeRequest.SerializeToString,
+            tictactoe__pb2.SetTimeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -32,3 +32,33 @@ message ReadyResponse {
 service ReadyService {
   rpc ServerReady(ReadyRequest) returns (ReadyResponse);
 }
+
+message ListBoardRequest {
+  // No field needed
+}
+
+message ListBoardResponse {
+  repeated string array = 1;
+}
+
+message SetSymbolRequest {
+  string symbols = 1;
+}
+
+message SetSymbolResponse {
+  string output = 1; // SUCCESS, FAIL or GAMEOVER
+}
+
+message SetTimeRequest {
+  float new_time = 1;
+}
+
+message SetTimeResponse {
+  bool success = 1;
+}
+
+service GameService {
+  rpc ListBoard(ListBoardRequest) returns (ListBoardResponse);
+  rpc SetSymbol(SetSymbolRequest) returns (SetSymbolResponse);
+  rpc SetTime(SetTimeRequest) returns (SetTimeResponse);
+}

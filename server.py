@@ -34,11 +34,6 @@ class DateTimeClient:
         response = self.stub.GetDateTime(request)
         return response.date_time
 
-    def set_datetime(self, time_diff):
-        request = tictactoe_pb2.SetDateTimeRequest(time_diff)
-        response = self.stub.SetDateTime(request)
-        return response.success
-
 
 class DateTimeService(tictactoe_pb2_grpc.DateTimeServiceServicer):
     def GetDateTime(self, request, context):
@@ -47,95 +42,130 @@ class DateTimeService(tictactoe_pb2_grpc.DateTimeServiceServicer):
         return response
 
     def SetDateTime(self, request, context):
-        global time_synced
+        global TIME_SYNCED
         avg_time = request.avg_time
         time_diff = datetime.datetime.fromtimestamp(time.time()) - datetime.datetime.fromtimestamp(avg_time)
-        time_synced = True
+        TIME_SYNCED = True
         print(f"Time difference: {time_diff}")
         response = tictactoe_pb2.SetDateTimeResponse(success=True)
         return response
 
 
-def update_clock(client):  # Christian's algorithm for now
-    start_time = time.time()
-    server_time = datetime.datetime.strptime(client.get_datetime(), "%Y-%m-%d %H:%M:%S.%fZ")
-    end_time = time.time()
-
-    client_time = datetime.datetime.utcnow()
-    estimated_server_time = server_time + datetime.timedelta(seconds=(end_time - start_time) / 2)
-    time_diff = estimated_server_time - client_time
-
-    print("Client time: ", client_time)
-    # print("Estimated server time: ", estimated_server_time)
-    print("Time diff with server: ", abs(time_diff))
-    return estimated_server_time
-
-
 def sync_time():
     times = [time.time()]
-    for port in ports:
+    for port in PORTS:
         with grpc.insecure_channel(f'localhost:{port}') as channel:
-            #client = DateTimeClient(channel)
-            #response = client.get_datetime()
             stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
             response = stub.GetDateTime(tictactoe_pb2.GetDateTimeRequest())
             times.append(response.date_time)
     avg_times = [sum(times) / len(times) for t in times[1:]]
-    for i in range(len(ports)):
-        with grpc.insecure_channel(f'localhost:{ports[0]}') as channel:
+    for i in range(len(PORTS)):
+        with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
             stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
             response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=avg_times[i]))
             print(response.success)
     return
 
 
-time_synced = False
+TIME_SYNCED = False
 
 
 def servers_ready():
-    global time_synced, ports
-    while not time_synced:
+    global TIME_SYNCED, PORTS
+
+    #### TIMESYNC
+    while not TIME_SYNCED:
         try:
-            for port in ports:
+            for port in PORTS:
                 with grpc.insecure_channel(f'localhost:{port}') as channel:
                     client = ReadyClient(channel)
                     response = client.server_ready()
-            time.sleep(1)
-            if time_synced:
+            if TIME_SYNCED:
                 break
             else:
                 print("Start timesync")
                 sync_time()
-                time_synced = True
+                TIME_SYNCED = True
         except grpc.RpcError as e:
             print("Trying to contact peers again!")
     return
 
 
+def list_board():
+    pass
+
+
+def set_symbol(param):
+    return ''
+
+
+def set_time(param):
+    pass
+
+
+PORTS = ["20048", "20049", "20050"]
+MY_PORT = ''
+MASTER_PORT = '20048'
+PLAYER_PORTS = PORTS[:]
+PLAYER_PORTS.remove(MASTER_PORT)
+MY_ROLE = ''
+
+
+def game_over():
+    pass
+
+
 def game_loop():
+    global MY_PORT, MASTER_PORT, MY_ROLE
     print("Contacting peers!")
     servers_ready()
     print("All clients online!")
-    lmao = input("Continue")
+
+    #TODO LEADER ELECTION
+    ## Dummy leader election
+    if MY_PORT == '20048':
+        MY_ROLE = 'LEADER'
+    elif MY_PORT == '20049':
+        MY_ROLE = 'PLAYER 1'
+    elif MY_PORT == '20050':
+        MY_ROLE = 'PLAYER 2'
+
+    time.sleep(0.5)
+    while True:
+        args = input(f"{MY_ROLE}> ").split(' ')
+        command = args[0]
+        if command == "Set-symbol":
+            output = set_symbol(args[1:])
+            if output == "GAMEOVER":
+                game_over()
+                break
+        elif command == "List-board":
+            list_board()
+        elif command == "Set-node-time":
+            set_time(args[1:])
+        else:
+            print("Command not available, try again")
+
+    game_loop()
 
 
-ports = ["20048", "20049", "20050"]
 if __name__ == "__main__":
     server = grpc.server(ThreadPoolExecutor(max_workers=5))
     while True:
         try:
             port = input("Insert server port: ")
             server.add_insecure_port("[::]:" + port)
-            ports.remove(port)
+            PORTS.remove(port)
+            MY_PORT = port
             break
         except:
             print("This port is taken, try again:")
     tictactoe_pb2_grpc.add_ReadyServiceServicer_to_server(ReadyServicer(), server)
     tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(DateTimeService(), server)
+    #tictactoe_pb2_grpc.add_DateTimeServiceServicer_to_server(GameService(), server)
     server.start()
     print("Server CONNECTED to port " + port + "...")
 
-    #while True:
     game_loop()
 
     print("End")
