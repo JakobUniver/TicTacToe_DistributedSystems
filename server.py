@@ -282,8 +282,30 @@ def game_over():
     pass
 
 
-def set_time(param):
-    pass
+def set_time(params):
+    timestamp = params[1]
+    node = params[0]
+    if MY_ROLE != 'MASTER':
+        if node == MY_ROLE:
+            print(f"{MY_ROLE} time set to {timestamp}")
+            # time.clock_settime(time.CLOCK_REALTIME)
+        else:
+            print("Regular nodes cannot change other node's time!")
+    else:
+        if node == 'MASTER':
+            print(f"MASTER time set to {timestamp}")
+            # time.clock_settime(time.CLOCK_REALTIME)
+        elif node == 'PLAYER X':
+            print(f"PLAYER X time set to {timestamp}")
+            # with grpc.insecure_channel(f'localhost:{PORTS[0]}') as channel:
+            #     stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            #     response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=timestamp))
+        else:
+            print(f"PLAYER O time set to {timestamp}")
+            # with grpc.insecure_channel(f'localhost:{PORTS[1]}') as channel:
+            #     stub = tictactoe_pb2_grpc.DateTimeServiceStub(channel)
+            #     response = stub.SetDateTime(tictactoe_pb2.SetDateTimeRequest(avg_time=timestamp))
+
 
 
 def assignSymbols():
@@ -310,7 +332,7 @@ def game_loop():
     servers_ready()
     print("All clients online!")
 
-    time.sleep(3)
+    time.sleep(1)
 
     PORTS.append(MY_PORT)
     PORTS.sort()
@@ -326,7 +348,7 @@ def game_loop():
         LAST_SYMBOL = ''
         assignSymbols()
 
-    time.sleep(3)
+    time.sleep(1)
     while True:
         args = input(f"{MY_ROLE}> ").split(' ')
         command = args[0]
