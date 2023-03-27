@@ -157,10 +157,6 @@ def election():
 
     for send in range(num + 1, len(PORTS) - 1):
         send_port = PORTS[send]
-        print(num)
-        print(send)
-        print(send_port)
-        print()
         try:
             with grpc.insecure_channel(f'localhost:{send_port}') as channel:
                 client = ElectionClient(channel)
@@ -171,7 +167,6 @@ def election():
         except grpc.RpcError as e:
             print("Error with sending election messages!")
             print(e)
-    print(successful)
     if sum(successful) == 0:
         COORDINATOR = MY_PORT
         for send_port in PORTS:
@@ -256,14 +251,14 @@ def assignSymbols():
         client = AssignSymbolClient(channel)
         response = client.assign_symbol('PLAYER X')
         if response.success:
-            print(f"Port {PORTS[0]} asssigned symbol X")
+            print(f"Port {PORTS[0]} assigned symbol X")
         else:
             print("Symbol assignment failed!")
     with grpc.insecure_channel(f'localhost:{PORTS[1]}') as channel:
         client = AssignSymbolClient(channel)
         response = client.assign_symbol('PLAYER O')
         if response.success:
-            print(f"Port {PORTS[1]} asssigned symbol O")
+            print(f"Port {PORTS[1]} assigned symbol O")
         else:
             print("Symbol assignment failed!")
     return
@@ -282,13 +277,11 @@ def game_loop():
     election()
     PORTS.remove(MY_PORT)
 
+    time.sleep(1)
+
     if MY_PORT == COORDINATOR:
         MY_ROLE = 'MASTER'
         assignSymbols()
-    # elif MY_PORT == '20049':
-    #     MY_ROLE = 'PLAYER X'
-    # elif MY_PORT == '20050':
-    #     MY_ROLE = 'PLAYER O'
 
     time.sleep(3)
     while True:
